@@ -10,18 +10,9 @@
     <AssemblyName>GMTK2024</AssemblyName>
     <DefineConstants>$(DefineConstants);BLAZORGL</DefineConstants>
 	<KniPlatform>BlazorGL</KniPlatform>
-  </PropertyGroup>
-  
-  <PropertyGroup>
     <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-  </PropertyGroup>
-
+	
   <ItemGroup>
     <Compile Include="Pages\Index.razor.cs" />
     <Compile Include="Program.cs" />
@@ -36,7 +27,6 @@
     <PackageReference Include="nkast.Xna.Framework.Input" Version="3.13.9001" />
     <PackageReference Include="nkast.Xna.Framework.Game" Version="3.13.9001" />
     <PackageReference Include="nkast.Xna.Framework.Blazor" Version="3.13.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="3.13.9001" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

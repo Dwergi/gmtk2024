@@ -14,18 +14,7 @@
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <DefineConstants>$(DefineConstants);DESKTOPGL</DefineConstants>
     <KniPlatform>DesktopGL</KniPlatform>
-  </PropertyGroup>
-	
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-  </PropertyGroup>
-	
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-  </PropertyGroup>
-	
-  <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
