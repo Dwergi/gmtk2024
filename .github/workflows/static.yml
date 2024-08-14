@@ -55,3 +55,16 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Zip WWW Root
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r wwwroot.zip publish/wwwroot
+
+      - name: Deploy to Itch
+        uses: Ayowel/butler-to-itch@v1
+        with:
+          butler_key: ${{secrets.BUTLER_CREDENTIALS}}
+          itch_user: Dwergi
+          itch_game: gmtk-2024
+          files: wwwroot.zip
