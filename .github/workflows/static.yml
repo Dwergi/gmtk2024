@@ -26,7 +26,7 @@ jobs:
   deploy-to-github-pages:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{steps.deployment.outputs.page_url}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,13 +44,13 @@ jobs:
         run: dotnet workload install wasm-tools
           
       - name: Publish .NET Core Project
-        run: dotnet publish GMTK2024.BlazorGL/GMTK2024.BlazorGL.csproj -c Release -o release --nologo
+        run: dotnet publish GMTK2024.BlazorGL/GMTK2024.BlazorGL.csproj -c Release -o publish --nologo
         
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload wwwroot from publish action
-          path: 'GMTK2024.BlazorGL/release/wwwroot'
+          path: 'publish/wwwroot'
           
       - name: Deploy to GitHub Pages
         id: deployment
