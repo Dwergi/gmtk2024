@@ -44,7 +44,7 @@ jobs:
         run: dotnet publish GMTK2024.BlazorGL/GMTK2024.BlazorGL.csproj -c Release -o release --nologo
         
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           # Upload wwwroot from publish action
           path: 'GMTK2024.BlazorGL/wwwroot'
