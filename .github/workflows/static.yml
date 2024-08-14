@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload wwwroot from publish action
-          path: 'GMTK2024.BlazorGL/wwwroot'
+          path: 'GMTK2024.BlazorGL/bin/Release/net8.0/publish/wwwroot'
           
       - name: Deploy to GitHub Pages
         id: deployment
