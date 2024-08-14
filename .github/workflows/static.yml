@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy MonoGame web project to GitHub Pages
+name: Deploy to GitHub Pages and Itch
 
 on:
   # Runs on pushes targeting the default branch
@@ -67,4 +67,4 @@ jobs:
           butler_key: ${{secrets.BUTLER_CREDENTIALS}}
           itch_user: Dwergi
           itch_game: gmtk-2024
-          files: wwwroot.zip
+          files: web:wwwroot.zip
