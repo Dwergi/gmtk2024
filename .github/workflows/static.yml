@@ -40,14 +40,17 @@ jobs:
         with:
           dotnet-version: 8.0.x
           
+      - name: Setup WASM Tools
+        run: dotnet workload install wasm-tools
+          
       - name: Publish .NET Core Project
         run: dotnet publish GMTK2024.BlazorGL/GMTK2024.BlazorGL.csproj -c Release -o release --nologo
         
-      - name: Upload artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload wwwroot from publish action
-          path: 'GMTK2024.BlazorGL/bin/Release/net8.0/publish/wwwroot'
+          path: 'GMTK2024.BlazorGL/release/wwwroot'
           
       - name: Deploy to GitHub Pages
         id: deployment
