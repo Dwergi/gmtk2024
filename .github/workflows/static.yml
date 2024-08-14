@@ -67,4 +67,4 @@ jobs:
           butler_key: ${{secrets.BUTLER_CREDENTIALS}}
           itch_user: Dwergi
           itch_game: gmtk-2024
-          files: web:wwwroot.zip
+          files: web wwwroot.zip
