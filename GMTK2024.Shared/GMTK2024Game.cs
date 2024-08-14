@@ -16,15 +16,9 @@ namespace GMTK2024
 
 		public GMTK2024Game()
 		{
+			m_input = new();
 			m_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
-
-#if (ANDROID || iOS)
-			m_graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
-			m_graphics.IsFullScreen = true;
-#endif
-
-			m_input = new();
 		}
 
 		/// <summary>
