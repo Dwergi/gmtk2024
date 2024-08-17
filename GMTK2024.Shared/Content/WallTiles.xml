@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="WallTiles.png">
+	<SubTexture name="default" x="0" y="0" width="64" height="64" />
+	<SubTexture name="hole" x="64" y="0" width="1" height="1" />
+</TextureAtlas>
