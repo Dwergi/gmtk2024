@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="UI.png">
+	<SubTexture name="button" x="0" y="0" width="52" height="52" />
+	<SubTexture name="error" x="54" y="0" width="32" height="32" />
+	<SubTexture name="stack" x="54" y="34" width="52" height="52" />
+</TextureAtlas>

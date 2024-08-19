@@ -23,7 +23,7 @@ public abstract class UIElement
 {
 	public UIElement Parent { get; set; }
 
-	public Anchor Anchor { get; set; }
+	public Anchor Anchor { get; set; } = Anchor.TopLeft;
 
 	/// <summary>
 	/// Pixels from left.
@@ -55,11 +55,11 @@ public abstract class UIElement
 
 	public bool IsVisible { get; set; } = true;
 
-	private readonly GraphicsDevice m_graphicsDevice;
+	protected readonly UIRoot m_root;
 
-	protected UIElement( GraphicsDevice device )
+	protected UIElement( UIRoot root )
 	{
-		m_graphicsDevice = device;
+		m_root = root;
 	}
 
 	public abstract void Draw( SpriteBatch batch );
@@ -70,14 +70,14 @@ public abstract class UIElement
 
 	public Rectangle GetClippingRect()
 	{
-		Rectangle parentBounds = Parent?.GetAbsoluteBounds() ?? m_graphicsDevice.Viewport.Bounds;
+		Rectangle parentBounds = Parent?.GetAbsoluteBounds() ?? m_root.Bounds;
 		return parentBounds;
 	}
 
 	public Rectangle GetAbsoluteBounds()
 	{
 		Rectangle bounds = Bounds;
-		Rectangle parentRect = Parent?.GetAbsoluteBounds() ?? m_graphicsDevice.Viewport.Bounds;
+		Rectangle parentRect = Parent?.GetAbsoluteBounds() ?? m_root.Bounds;
 
 		if( bounds.X < 0 && bounds.Width < 0 ||
 			bounds.Y < 0 && bounds.Height < 0 )
@@ -104,7 +104,7 @@ public abstract class UIElement
 		// flip relative coordinates
 		if( bounds.X < 0 )
 		{
-			bounds.X = parentRect.Right + bounds.X;
+			bounds.X = parentRect.Right + bounds.X - bounds.Width;
 		}
 		else
 		{
@@ -113,15 +113,15 @@ public abstract class UIElement
 
 		if( bounds.Y < 0 )
 		{
-			bounds.Y = parentRect.Bottom + bounds.Y;
+			bounds.Y = parentRect.Bottom + bounds.Y - bounds.Height;
 		}
 		else
 		{
 			bounds.Y += parentRect.Y;
 		}
 
-		if( bounds.X < 0 || bounds.X >= m_graphicsDevice.Viewport.Bounds.Right ||
-			bounds.Y < 0 || bounds.Y >= m_graphicsDevice.Viewport.Bounds.Bottom )
+		if( bounds.X < 0 || bounds.X >= m_root.Bounds.Right ||
+			bounds.Y < 0 || bounds.Y >= m_root.Bounds.Bottom )
 		{
 			// entirely out of bounds
 			Debugger.Break();

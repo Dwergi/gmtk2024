@@ -2,11 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
-using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.ViewportAdapters;
 using System;
-using System.Collections.Generic;
 using GMTK2024.UI;
 
 namespace GMTK2024
@@ -14,7 +12,7 @@ namespace GMTK2024
 	public static class Globals
 	{
 		public const int TILE_SIZE = 64;
-		public static readonly Rectangle TILE_BOUNDS = new( -16, -3, 32, 17 );
+		public static readonly Rectangle TILE_BOUNDS = new( -16, -3, 30, 17 );
 		public static readonly Rectangle PIXEL_BOUNDS = new( TILE_BOUNDS.Left * TILE_SIZE, -TILE_BOUNDS.Bottom * TILE_SIZE, TILE_BOUNDS.Width * TILE_SIZE, TILE_BOUNDS.Height * TILE_SIZE );
 	}
 
@@ -25,19 +23,14 @@ namespace GMTK2024
 	{
 		public static GMTK2024Game Instance { get; private set; }
 
-		public Wall Wall { get; private set; }
+		public UIRoot UI { get; private set; }
 
-		public IReadOnlyDictionary<string, Texture2DRegion> Holds => m_holds;
-		Dictionary<string, Texture2DRegion> m_holds = new();
+		public Wall Wall { get; private set; }
 
 		private readonly GraphicsDeviceManager m_graphics;
 		private SpriteBatch m_spriteBatch;
 		private Ground m_ground;
-		private UIRoot m_ui;
-
-		private Texture2DAtlas m_groundAtlas;
-		private Texture2DAtlas m_wallAtlas;
-
+		private EditMode m_editMode;
 		private OrthographicCamera m_camera;
 
 		/// pixels per second
@@ -48,8 +41,6 @@ namespace GMTK2024
 
 		/// % per second
 		private const float KB_ZOOM_SPEED = 0.75f;
-
-		private const string HOLD_PREFIX = "hold_";
 
 		public GMTK2024Game()
 		{
@@ -68,18 +59,6 @@ namespace GMTK2024
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			m_spriteBatch = new( GraphicsDevice );
-
-			m_groundAtlas = Utils.CreateAtlasFromPacked( "Content/GroundTiles.png", GraphicsDevice );
-			m_wallAtlas = Utils.CreateAtlasFromPacked( "Content/WallTiles.png", GraphicsDevice );
-
-			foreach( var region in m_wallAtlas )
-			{
-				if( region.Name.StartsWith( HOLD_PREFIX, StringComparison.Ordinal ) )
-				{
-					string holdName = region.Name.Substring( HOLD_PREFIX.Length );
-					m_holds.Add( holdName, region );
-				}
-			}
 		}
 
 		/// <summary>
@@ -101,14 +80,16 @@ namespace GMTK2024
 			IsMouseVisible = true;
 			Mouse.SetCursor( MouseCursor.Arrow );
 
-			m_ui = new UIRoot( GraphicsDevice );
-			m_ui.Initialize();
+			UI = new UIRoot( GraphicsDevice );
 
-			Wall = new Wall( m_wallAtlas, 6, 12 )
+			Wall = new Wall( 12, 5 )
 			{
-				X = -3
+				X = -6,
+				Color = Color.Wheat
 			};
-			m_ground = new Ground( m_groundAtlas );
+			m_ground = new Ground();
+
+			m_editMode = new EditMode();
 		}
 
 		/// <summary>
@@ -126,15 +107,11 @@ namespace GMTK2024
 
 			float delta_t = gameTime.GetElapsedSeconds();
 
-			if( keyboard.IsKeyDown( Keys.Escape ) )
-			{
-				Exit();
-			}
-
-
 			UpdateCameraInput( keyboard, mouse, delta_t );
 
-			m_ui.Update( keyboard, mouse, delta_t );
+			UI.Update( keyboard, mouse, delta_t );
+
+			m_editMode.Update( keyboard, mouse, delta_t );
 
 			base.Update( gameTime );
 		}
@@ -149,9 +126,11 @@ namespace GMTK2024
 
 			m_ground.Draw( m_spriteBatch, m_camera );
 
-			Wall.Draw( m_spriteBatch, m_camera, Color.Wheat );
+			Wall.Draw( m_spriteBatch, m_camera );
 
-			m_ui.Draw( m_spriteBatch, m_camera );
+			UI.Draw( m_spriteBatch, m_camera );
+
+			m_editMode.Draw( m_spriteBatch, m_camera );
 
 			base.Draw( gameTime );
 		}
@@ -212,17 +191,22 @@ namespace GMTK2024
 
 		private void UpdateDrag( KeyboardStateExtended keyboard, MouseStateExtended mouse, float delta_t )
 		{
-			if( mouse.WasButtonPressed( MouseButton.Right ) || mouse.WasButtonPressed( MouseButton.Middle ) )
+			if( m_zoomIndex == 0 )
 			{
-				m_dragStart = mouse.Position;
-				Mouse.SetCursor( MouseCursor.SizeAll );
+				StopDrag();
+				return;
 			}
 
 			if( mouse.WasButtonReleased( MouseButton.Right ) || mouse.WasButtonReleased( MouseButton.Middle ) )
 			{
-				m_dragStart = null;
-				m_dragging = false;
-				Mouse.SetCursor( MouseCursor.Arrow );
+				StopDrag();
+				return;
+			}
+
+			if( mouse.WasButtonPressed( MouseButton.Right ) || mouse.WasButtonPressed( MouseButton.Middle ) )
+			{
+				m_dragStart = mouse.Position;
+				Mouse.SetCursor( MouseCursor.SizeAll );
 			}
 
 			if( m_dragStart != null )
@@ -237,6 +221,13 @@ namespace GMTK2024
 			{
 				m_camera.Move( mouse.DeltaPosition.ToVector2() / m_camera.Zoom );
 			}
+		}
+
+		private void StopDrag()
+		{
+			m_dragStart = null;
+			m_dragging = false;
+			Mouse.SetCursor( MouseCursor.Arrow );
 		}
 
 		private float m_zoomInterp = 0.5f;

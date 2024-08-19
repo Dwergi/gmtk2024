@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TextureAtlas imagePath="WallTiles.png">
 	<SubTexture name="default" x="0" y="0" width="64" height="64" />
-	<SubTexture name="hold_crimp" x="64" y="0" width="32" height="32" />
-	<SubTexture name="hold_jug" x="96" y="0" width="32" height="32" />
-	<SubTexture name="hold_pinch" x="64" y="32" width="32" height="32" />
-	<SubTexture name="hold_sloper" x="96" y="32" width="32" height="32" />
-	<SubTexture name="hole" x="0" y="64" width="1" height="1" />
+	<SubTexture name="hold_crimp" x="66" y="0" width="32" height="32" />
+	<SubTexture name="hold_jug" x="66" y="34" width="32" height="32" />
+	<SubTexture name="hold_pinch" x="0" y="66" width="32" height="32" />
+	<SubTexture name="hold_sloper" x="34" y="68" width="32" height="32" />
+	<SubTexture name="hole" x="100" y="0" width="1" height="1" />
 </TextureAtlas>

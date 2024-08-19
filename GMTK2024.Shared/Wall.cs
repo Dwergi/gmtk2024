@@ -2,12 +2,31 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Graphics;
-using MonoGame.Extended.Shapes;
 using System;
+using System.Collections.Generic;
 
 namespace GMTK2024
 {
-	public class Wall
+
+	public class HoldType
+	{
+		public string Name;
+		public Texture2DRegion Sprite;
+	}
+
+	public class HoldSlot
+	{
+		public Vector2 Position { get; }
+		public HoldType Type;
+		public Color Color = Color.White;
+
+		public HoldSlot( Vector2 position )
+		{
+			Position = position;
+		}
+	}
+
+	public class Wall : IDrawable
 	{
 		private class Tile
 		{
@@ -51,14 +70,23 @@ namespace GMTK2024
 			}
 		}
 
-		/// <summary>
-		/// Separation between holds in the wall in meters.
-		/// </summary>
-		public float HoldSeparation
+		public Rectangle WorldBounds => new( WallToWorld( 0, Height ).ToPoint(), new( Width * Globals.TILE_SIZE, Height * Globals.TILE_SIZE ) );
+
+		public Color Color
 		{
 			get;
 			set;
-		} = 0.25f;
+		}
+
+		private const string HOLD_PREFIX = "hold_";
+
+		public IReadOnlyList<HoldType> HoldTypes => m_holdTypes;
+		private List<HoldType> m_holdTypes = new();
+
+		public IReadOnlyList<HoldSlot> HoldSlots => m_holdSlots;
+		private List<HoldSlot> m_holdSlots = new();
+
+		private const float HOLD_SEPARATION = 0.25f;
 
 		private readonly Texture2DAtlas m_atlas;
 		private readonly Texture2DRegion m_defaultRegion;
@@ -70,21 +98,68 @@ namespace GMTK2024
 
 		private Tile[] m_tiles;
 
-		public Wall( Texture2DAtlas atlas, int width, int height )
+		public Wall( int width, int height )
 		{
-			m_atlas = atlas;
+			m_atlas = Utils.CreateAtlasFromPacked( "Content/WallTiles.png", GMTK2024Game.Instance.GraphicsDevice );
 			m_defaultRegion = m_atlas.GetRegion( "default" );
 			m_holeRegion = m_atlas.GetRegion( "hole" );
+
+			foreach( var region in m_atlas )
+			{
+				if( region.Name.StartsWith( HOLD_PREFIX, StringComparison.Ordinal ) )
+				{
+					string holdName = region.Name.Substring( HOLD_PREFIX.Length );
+					m_holdTypes.Add( new HoldType { Name = holdName, Sprite = region } );
+				}
+			}
 
 			ResizeTiles( width, height );
 			m_width = width;
 			m_height = height;
+
+			bool shouldOffset = false;
+
+			for( float y = HOLD_SEPARATION; y < Height; y += HOLD_SEPARATION )
+			{
+				float offset = shouldOffset ? HOLD_SEPARATION / 2 : 0;
+				for( float x = HOLD_SEPARATION + offset; x < Width - HOLD_SEPARATION; x += HOLD_SEPARATION )
+				{
+					m_holdSlots.Add( new HoldSlot( new Vector2( x, y ) ) );
+				} 
+
+				shouldOffset = !shouldOffset;
+			}
+		}
+
+		public HoldSlot SnapToNearestHole( Vector2 worldPos )
+		{
+			if( !WorldBounds.Contains( worldPos ) )
+			{
+				return null;
+			}
+
+			Vector2 wallPos = WorldToWall( worldPos );
+
+			HoldSlot closest = null;
+			float closestDistance = float.PositiveInfinity;
+
+			foreach( var slot in HoldSlots )
+			{
+				float distance = (slot.Position - wallPos).LengthSquared();
+				if( distance < closestDistance )
+				{
+					closest = slot;
+					closestDistance = distance;
+				}
+			}
+
+			return closest;
 		}
 
 		/// <summary>
 		/// Draw the current wall.
 		/// </summary>
-		public void Draw( SpriteBatch batch, OrthographicCamera camera, Color tint )
+		public void Draw( SpriteBatch batch, OrthographicCamera camera )
 		{
 			batch.Begin( samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix() );
 
@@ -93,38 +168,37 @@ namespace GMTK2024
 				for( int x = 0; x < Width; ++x )
 				{
 					Tile tile = m_tiles[ y * Width + x ];
-					Vector2 position = new( (m_x + x) * Globals.TILE_SIZE, -(y + 1) * Globals.TILE_SIZE );
+					Vector2 position = WallToWorld( x, y + 1 );
 
-					// some stupid 1 pixel offset bullshit, no idea
-					position.X -= 0.5f * x;
-					position.Y += 0.5f * y;
-
-					batch.Draw( tile.Region, position, tint );
+					batch.Draw( tile.Region, position, Color );
 				}
 			}
 
-			for( float y = -1 + HoldSeparation; y < Height - 1; y += HoldSeparation )
+			foreach( var slot in HoldSlots )
 			{
-				for( float x = HoldSeparation; x < Width; x += HoldSeparation )
+				Vector2 position = WallToWorld( slot.Position );
+				if( slot.Type != null )
 				{
-					Vector2 position = new( (m_x + x) * Globals.TILE_SIZE, -(y + 1) * Globals.TILE_SIZE );
-
-					batch.Draw( m_holeRegion, position, Color.White );
+					batch.Draw( slot.Type.Sprite, position, slot.Color );
+				}
+				else
+				{
+					batch.DrawPoint( position, new Color( 50, 50, 50 ) );
 				}
 			}
 
 			float thickness = 2;
-			var outlinePoly = new Polygon(
+			Vector2[] outlineVerts =
 				[
-					// feels like this should just be m_x?
-					new Vector2( (m_x + Width / 2) * Globals.TILE_SIZE, 0 + thickness ),
-					new Vector2( (m_x + Width / 2) * Globals.TILE_SIZE, -Height * Globals.TILE_SIZE + thickness * 2 ),
-					new Vector2( (m_x + Width + Width / 2) * Globals.TILE_SIZE - 1, -Height * Globals.TILE_SIZE + thickness * 2 ),
-					new Vector2( (m_x + Width + Width / 2) * Globals.TILE_SIZE - 1, 0 + thickness )
-				] );
+					new( m_x * Globals.TILE_SIZE, 0 ),
+					new( m_x * Globals.TILE_SIZE, -Height * Globals.TILE_SIZE + 1 ),
+					new( (m_x + Width) * Globals.TILE_SIZE, -Height * Globals.TILE_SIZE + 1 ),
+					new( (m_x + Width) * Globals.TILE_SIZE, 0 )
+				];
 
-
-			batch.DrawPolygon( new Vector2( m_x * Globals.TILE_SIZE, 0 ), outlinePoly, Color.Black, thickness );
+			batch.DrawLine( outlineVerts[ 0 ], outlineVerts[ 1 ], Color.Black, thickness );
+			batch.DrawLine( outlineVerts[ 1 ], outlineVerts[ 2 ], Color.Black, thickness );
+			batch.DrawLine( outlineVerts[ 2 ], outlineVerts[ 3 ], Color.Black, thickness );
 
 			batch.End();
 		}
@@ -160,6 +234,32 @@ namespace GMTK2024
 			}
 
 			m_tiles = newTiles;
+		}
+
+		/// <summary>
+		/// Convert wall-relative coordinates to world coordinates
+		/// </summary>
+		public Vector2 WallToWorld( Vector2 pos )
+		{
+			return WallToWorld( pos.X, pos.Y );
+		}
+
+		/// <summary>
+		/// Convert wall-relative coordinates to world coordinates
+		/// </summary>
+		public Vector2 WallToWorld( float x, float y )
+		{
+			return new( (m_x + x) * Globals.TILE_SIZE, -y * Globals.TILE_SIZE );
+		}
+
+		public Vector2 WorldToWall( Vector2 pos )
+		{
+			return WorldToWall( pos.X, pos.Y );
+		}
+
+		public Vector2 WorldToWall( float x, float y )
+		{
+			return new( (x / Globals.TILE_SIZE) - m_x, -y / Globals.TILE_SIZE );
 		}
 	}
 }

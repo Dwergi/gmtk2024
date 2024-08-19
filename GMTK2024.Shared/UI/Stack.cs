@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Graphics;
@@ -43,8 +44,19 @@ public class Stack : UIElement
 
 	private readonly List<UIElement> m_children = new();
 	private readonly NinePatch m_background;
+	private static NinePatch m_defaultBG;
 
-	public Stack( GraphicsDevice device, NinePatch background = null ) : base( device )
+	public Stack( UIRoot root, bool showBackground ) : base( root )
+	{
+		if( m_defaultBG == null )
+		{
+			m_defaultBG = Utils.CreateNinePatchFromPacked( "Content/stack.png", 16, 2, root.GraphicsDevice );
+		}
+
+		m_background = m_defaultBG;
+	}
+
+	public Stack( UIRoot root, NinePatch background ) : base( root )
 	{
 		m_background = background;
 	}
@@ -83,41 +95,37 @@ public class Stack : UIElement
 
 			if( GrowDirection == Direction.Down )
 			{
+				child.X = Padding.Width;
 				child.Y = currentOffset;
 				currentOffset += child.Height + ItemSpacing;
 			}
 			else if( GrowDirection == Direction.Up )
 			{
+				child.X = Padding.Width;
 				child.Y = currentOffset;
 				currentOffset -= child.Height + ItemSpacing;
 			}
 			else if( GrowDirection == Direction.Right )
 			{
 				child.X = currentOffset;
+				child.Y = Padding.Height;
 				currentOffset += child.Height + ItemSpacing;
 			}
 			else if( GrowDirection == Direction.Left )
 			{
 				child.X = currentOffset;
+				child.Y = Padding.Height;
 				currentOffset -= child.Height + ItemSpacing;
 			}
 		}
 
-		if( GrowDirection == Direction.Down )
+		if( GrowDirection == Direction.Down || GrowDirection == Direction.Up )
 		{
-			Height = currentOffset + Padding.Height;
+			Height = currentOffset;
 		}
-		else if( GrowDirection == Direction.Up )
+		else if( GrowDirection == Direction.Right || GrowDirection == Direction.Left )
 		{
-			Height = currentOffset - Padding.Height;
-		}
-		else if( GrowDirection == Direction.Right )
-		{
-			Width = currentOffset + Padding.Width;
-		}
-		else if( GrowDirection == Direction.Left )
-		{
-			Width = currentOffset - Padding.Width;
+			Width = currentOffset;
 		}
 
 		if( AutoSize )
@@ -131,26 +139,21 @@ public class Stack : UIElement
 				Height = maxChildHeight + Padding.Height * 2;
 			}
 		}
+
+		foreach( var child in m_children )
+		{
+			if( child.IsVisible )
+			{
+				child.Update( keyboard, mouse, delta_t );
+			}
+		}
 	}
 
 	public override void Draw( SpriteBatch batch )
 	{
 		if( m_background != null )
 		{
-			var destRect = Bounds;
-
-			if( Width < 0 )
-			{
-				destRect.X = X + Width;
-				destRect.Width = -Height;
-
-			}
-			if( Height < 0 )
-			{
-				destRect.Y = Y + Height;
-				destRect.Height = -Height;
-			}
-
+			Rectangle destRect = GetAbsoluteBounds();
 			batch.Draw( m_background, destRect, Color, GetClippingRect() );
 		}
 

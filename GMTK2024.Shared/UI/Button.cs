@@ -43,8 +43,10 @@ public class Button : UIElement
 
 	private bool m_gotMouseDown;
 
-	public Button( GraphicsDevice device, NinePatch ninepatch, UIElement content ) : base( device )
+	public Button( UIRoot root, NinePatch ninepatch, UIElement content ) : base( root )
 	{
+		Anchor = Anchor.Center;
+
 		m_ninepatch = ninepatch;
 		Content = content;
 		Content.Parent = this;

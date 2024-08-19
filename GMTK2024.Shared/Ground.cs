@@ -12,16 +12,16 @@ namespace GMTK2024
 		private readonly Texture2DRegion m_normalUnder;
 		private readonly NinePatch m_padPatch;
 
-		private const int PAD_HEIGHT = 2;
+		private const int PAD_HEIGHT = 1;
 
-		public Ground( Texture2DAtlas atlas )
+		public Ground()
 		{
-			m_atlas = atlas;
+			m_atlas = Utils.CreateAtlasFromPacked( "Content/GroundTiles.png", GMTK2024Game.Instance.GraphicsDevice );
 
 			m_normalSurface = m_atlas.GetRegion( "ground_surface" );
 			m_normalUnder = m_atlas.GetRegion( "ground_under" );
 
-			m_padPatch = Utils.CreateNinePatchFromRegion( m_atlas.GetRegion( "pad" ), 16, 0 );
+			m_padPatch = Utils.CreateNinePatchFromRegion( m_atlas.GetRegion( "pad" ), 16, 2 );
 		}
 
 		public void Draw( SpriteBatch batch, OrthographicCamera camera )
@@ -44,10 +44,9 @@ namespace GMTK2024
 			}
 
 			Wall wall = GMTK2024Game.Instance.Wall;
-			int minPadX = wall.X - 1;
-
-			Rectangle padRectangle = new( minPadX * Globals.TILE_SIZE, 0, (wall.Width + 2) * Globals.TILE_SIZE, PAD_HEIGHT * Globals.TILE_SIZE );
-			batch.Draw( m_padPatch, padRectangle, new Color( 65, 105, 255 ) );		
+			const int EXTRA_PADDING = Globals.TILE_SIZE / 4;
+			Rectangle padRectangle = new( wall.X * Globals.TILE_SIZE - EXTRA_PADDING, 0, wall.Width * Globals.TILE_SIZE + EXTRA_PADDING * 2, PAD_HEIGHT * Globals.TILE_SIZE );
+			batch.Draw( m_padPatch, padRectangle, Color.White );		
 
 			batch.End();
 		}

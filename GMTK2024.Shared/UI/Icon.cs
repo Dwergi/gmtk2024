@@ -11,11 +11,11 @@ public class Icon : UIElement
 		set;
 	}
 
-	public Icon( GraphicsDevice device, Texture2D texture ) : this( device, new Texture2DRegion( texture ) )
+	public Icon( UIRoot root, Texture2D texture ) : this( root, new Texture2DRegion( texture ) )
 	{
 	}
 
-	public Icon( GraphicsDevice device, Texture2DRegion region ) : base( device )
+	public Icon( UIRoot root, Texture2DRegion region ) : base( root )
 	{
 		Sprite = region;
 		Width = Sprite.Width;

@@ -29,7 +29,7 @@ public class TextBlock : UIElement
 
 	private readonly BitmapFont m_font;
 
-	public TextBlock( GraphicsDevice device, BitmapFont font, string text = null ) : base( device )
+	public TextBlock( UIRoot root, BitmapFont font, string text = null ) : base( root )
 	{
 		m_font = font;
 		Text = text;
