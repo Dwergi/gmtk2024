@@ -46,24 +46,35 @@ namespace GMTK2024
 			return atlas;
 		}
 
-		public static NinePatch CreateNinePatchFromPacked( string filename, GraphicsDevice graphicsDevice )
+		public static NinePatch CreateNinePatchFromPacked( string filename, int size, int padding, GraphicsDevice graphicsDevice, string name = null )
 		{
 			using var pngStream = File.OpenRead( filename );
 			var texture = Texture2D.FromStream( graphicsDevice, pngStream );
+
+			if( name == null )
+			{
+				name = Path.GetFileNameWithoutExtension( pngStream.Name );
+			}
+
+			return CreateNinePatchFromRegion( new Texture2DRegion( texture ), size, padding, name );
+		}
+
+		public static NinePatch CreateNinePatchFromRegion( Texture2DRegion region, int size, int padding, string name = null )
+		{
 			Texture2DRegion[] patches =
 			[
-				new( texture, new Rectangle( 0,	 0,  16, 16 ) ),
-				new( texture, new Rectangle( 18, 0,  16, 16 ) ),
-				new( texture, new Rectangle( 36, 0,  16, 16 ) ),
-				new( texture, new Rectangle( 0,	 18, 16, 16 ) ),
-				new( texture, new Rectangle( 18, 18, 16, 16 ) ),
-				new( texture, new Rectangle( 36, 18, 16, 16 ) ),
-				new( texture, new Rectangle( 0,  36, 16, 16 ) ),
-				new( texture, new Rectangle( 18, 36, 16, 16 ) ),
-				new( texture, new Rectangle( 36, 36, 16, 16 ) ),
+				region.GetSubregion( new Rectangle( 0,  0,  size, size ) ),
+				region.GetSubregion( new Rectangle( size + padding, 0,  size, size ) ),
+				region.GetSubregion( new Rectangle( size * 2 + padding * 2, 0,  size, size ) ),
+				region.GetSubregion( new Rectangle( 0,  size + padding, size, size ) ),
+				region.GetSubregion( new Rectangle( size + padding, size + padding, size, size ) ),
+				region.GetSubregion( new Rectangle( size * 2 + padding * 2, size + padding, size, size ) ),
+				region.GetSubregion( new Rectangle( 0,  size * 2 + padding * 2, size, size ) ),
+				region.GetSubregion( new Rectangle( size + padding, size * 2 + padding * 2, size, size ) ),
+				region.GetSubregion( new Rectangle( size * 2 + padding * 2, size * 2 + padding * 2, size, size ) ),
 			];
 
-			return new NinePatch( patches );
+			return new NinePatch( patches, name );
 		}
 	}
 }

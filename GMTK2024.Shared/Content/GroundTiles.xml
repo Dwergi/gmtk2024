@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TextureAtlas imagePath="GroundTiles.png">
-	<SubTexture name="ground_lower" x="0" y="0" width="64" height="64" />
-	<SubTexture name="ground_surface" x="64" y="0" width="64" height="64" />
+	<SubTexture name="ground_surface" x="0" y="0" width="64" height="64" />
+	<SubTexture name="ground_under" x="64" y="0" width="64" height="64" />
+	<SubTexture name="pad" x="0" y="64" width="48" height="48" />
 </TextureAtlas>
