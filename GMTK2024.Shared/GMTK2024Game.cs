@@ -2,18 +2,40 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.ViewportAdapters;
 using System;
 using GMTK2024.UI;
+using System.Collections.Generic;
 
 namespace GMTK2024
 {
 	public static class Globals
 	{
 		public const int TILE_SIZE = 64;
-		public static readonly Rectangle TILE_BOUNDS = new( -16, -3, 30, 17 );
-		public static readonly Rectangle PIXEL_BOUNDS = new( TILE_BOUNDS.Left * TILE_SIZE, -TILE_BOUNDS.Bottom * TILE_SIZE, TILE_BOUNDS.Width * TILE_SIZE, TILE_BOUNDS.Height * TILE_SIZE );
+		public const int TILE_LEFT = -16;
+		public const int TILE_RIGHT = 14;
+		public const int TILE_TOP = 14;
+		public const int TILE_BOTTOM = -3;
+		public const int TILE_WIDTH = TILE_RIGHT - TILE_LEFT;
+		public const int TILE_HEIGHT = TILE_TOP - TILE_BOTTOM;
+
+		public static readonly Rectangle PIXEL_BOUNDS = new( TILE_LEFT * TILE_SIZE, -TILE_TOP * TILE_SIZE, TILE_WIDTH * TILE_SIZE, TILE_HEIGHT * TILE_SIZE );
+
+		// 1 second = 5 minutes
+		public const float TIME_SCALE = 60 * 5;
+		public const float ACCELERATED_TIME_SCALE = 60 * 5 * 10;
+
+		public static Vector2 TileToWorld( Vector2 tile )
+		{
+			return TileToWorld( tile.X, tile.Y );
+		}
+
+		public static Vector2 TileToWorld( float x, float y)
+		{
+			return new Vector2( x * TILE_SIZE, -y * TILE_SIZE );
+		}
 	}
 
 	/// <summary>
@@ -27,11 +49,16 @@ namespace GMTK2024
 
 		public Wall Wall { get; private set; }
 
+		public TimeOnly CurrentTime { get; private set; }
+
+		public bool IsNightTime => CurrentTime > new TimeOnly( 21, 0 ) || CurrentTime < new TimeOnly( 7, 0 );
+
 		private readonly GraphicsDeviceManager m_graphics;
 		private SpriteBatch m_spriteBatch;
 		private Ground m_ground;
 		private EditMode m_editMode;
 		private OrthographicCamera m_camera;
+		private Background m_background;
 
 		/// pixels per second
 		private const float SCROLL_SPEED = 400;
@@ -88,6 +115,7 @@ namespace GMTK2024
 				Color = Color.Wheat
 			};
 			m_ground = new Ground();
+			m_background = new Background();
 
 			m_editMode = new EditMode();
 		}
@@ -109,11 +137,51 @@ namespace GMTK2024
 
 			UpdateCameraInput( keyboard, mouse, delta_t );
 
+			m_background.Update( delta_t );
+
 			UI.Update( keyboard, mouse, delta_t );
 
 			m_editMode.Update( keyboard, mouse, delta_t );
 
 			base.Update( gameTime );
+		}
+
+		private static readonly List<Color> DAY_NIGHT_COLORS = new List<Color>()
+		{
+			new( 3, 21, 72 ), // 0
+			new( 0, 28, 64 ), // 1
+			new( 0, 44, 87 ), // 2
+			new( 0, 42, 83 ), // 3
+			new( 0, 51, 88 ), // 4
+			new( 0, 53, 91 ), // 5
+			new( 1, 72, 106 ),  // 6
+			new( 6, 88, 126 ),  // 7
+			new( 14, 129, 160 ),  // 8
+			new( 77, 181, 189 ),  // 9
+			new( 197, 227, 194 ),  // 10
+			new( 230, 224, 114 ),  // 11
+			new( 245, 205, 100 ),  // 12
+			new( 255, 194, 108 ),  // 13
+			new( 254, 191, 95 ),  // 14
+			new( 254, 187, 94 ),  // 15
+			new( 247, 164, 83 ),  // 16
+			new( 244, 132, 110 ),  // 17
+			new( 218, 108, 131 ),  // 18
+			new( 135, 64, 134 ),  // 19
+			new( 78, 37, 125 ),  // 20
+			new( 52, 26, 114 ),  // 21
+			new( 37, 37, 104 ),  // 22
+			new( 16, 26, 81 ),  // 23
+		};
+
+		private Color GetDayNightColor()
+		{
+			Color currentColor = DAY_NIGHT_COLORS[ CurrentTime.Hour ];
+			Color nextColor = CurrentTime.Hour == 23 ? DAY_NIGHT_COLORS[ 0 ] : DAY_NIGHT_COLORS[ CurrentTime.Hour + 1 ];
+
+			float t = CurrentTime.Minute / 60.0f;
+
+			return Color.Lerp( currentColor, nextColor, t );
 		}
 
 		/// <summary>
@@ -122,7 +190,16 @@ namespace GMTK2024
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw( GameTime gameTime )
 		{
-			GraphicsDevice.Clear( new Color( 180, 180, 180 ) );
+			float delta_t = gameTime.GetElapsedSeconds();
+
+			float timeScale = IsNightTime ? Globals.ACCELERATED_TIME_SCALE : Globals.TIME_SCALE;
+			CurrentTime = CurrentTime.Add( TimeSpan.FromSeconds( delta_t * timeScale ) );
+
+			Color dayNightColor = GetDayNightColor();
+
+			GraphicsDevice.Clear( dayNightColor );
+
+			m_background.Draw( m_spriteBatch, m_camera );
 
 			m_ground.Draw( m_spriteBatch, m_camera );
 
@@ -131,6 +208,12 @@ namespace GMTK2024
 			UI.Draw( m_spriteBatch, m_camera );
 
 			m_editMode.Draw( m_spriteBatch, m_camera );
+
+			m_spriteBatch.Begin();
+
+			m_spriteBatch.DrawString( UI.Font32, CurrentTime.ToString(), new Vector2( 10, 10 ), Color.White );
+
+			m_spriteBatch.End();
 
 			base.Draw( gameTime );
 		}

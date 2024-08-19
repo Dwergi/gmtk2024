@@ -4,6 +4,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GMTK2024
 {
@@ -104,13 +105,10 @@ namespace GMTK2024
 			m_defaultRegion = m_atlas.GetRegion( "default" );
 			m_holeRegion = m_atlas.GetRegion( "hole" );
 
-			foreach( var region in m_atlas )
+			foreach( var region in m_atlas.Where( r => r.Name.StartsWith( HOLD_PREFIX, StringComparison.Ordinal ) ) )
 			{
-				if( region.Name.StartsWith( HOLD_PREFIX, StringComparison.Ordinal ) )
-				{
-					string holdName = region.Name.Substring( HOLD_PREFIX.Length );
-					m_holdTypes.Add( new HoldType { Name = holdName, Sprite = region } );
-				}
+				string holdName = region.Name.Substring( HOLD_PREFIX.Length );
+				m_holdTypes.Add( new HoldType { Name = holdName, Sprite = region } );
 			}
 
 			ResizeTiles( width, height );
@@ -163,6 +161,8 @@ namespace GMTK2024
 		{
 			batch.Begin( samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix() );
 
+			bool isNight = GMTK2024Game.Instance.IsNightTime;
+
 			for( int y = 0; y < Height; ++y )
 			{
 				for( int x = 0; x < Width; ++x )
@@ -170,7 +170,7 @@ namespace GMTK2024
 					Tile tile = m_tiles[ y * Width + x ];
 					Vector2 position = WallToWorld( x, y + 1 );
 
-					batch.Draw( tile.Region, position, Color );
+					batch.Draw( tile.Region, position, isNight ? Color * 0.3f : Color );
 				}
 			}
 
@@ -179,7 +179,7 @@ namespace GMTK2024
 				Vector2 position = WallToWorld( slot.Position );
 				if( slot.Type != null )
 				{
-					batch.Draw( slot.Type.Sprite, position, slot.Color );
+					batch.Draw( slot.Type.Sprite, position, isNight ? slot.Color * 0.5f : slot.Color );
 				}
 				else
 				{

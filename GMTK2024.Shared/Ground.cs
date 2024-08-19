@@ -28,25 +28,26 @@ namespace GMTK2024
 		{
 			batch.Begin( samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix() );
 
-			for( int x = Globals.TILE_BOUNDS.Left; x <= Globals.TILE_BOUNDS.Right; ++x )
+			bool isNight = GMTK2024Game.Instance.IsNightTime;
+			Color tint = isNight ? new Color( 50, 50, 50 ) : new Color( 150, 150, 150 );
+
+			for( int x = Globals.TILE_LEFT + 1; x < Globals.TILE_RIGHT - 1; ++x )
 			{
-				Vector2 position = new( x * Globals.TILE_SIZE, 0 );
-				batch.Draw( m_normalSurface, position, new Color( 150, 150, 150 ) );
+				batch.Draw( m_normalSurface, Globals.TileToWorld( x, 0 ), tint );
 			}
 
-			for( int y = -1; y > Globals.TILE_BOUNDS.Top; --y )
+			for( int y = -1; y > Globals.TILE_BOTTOM; --y )
 			{
-				for( int x = Globals.TILE_BOUNDS.Left; x <= Globals.TILE_BOUNDS.Right; ++x )
+				for( int x = Globals.TILE_LEFT + 1; x < Globals.TILE_RIGHT - 1; ++x )
 				{
-					Vector2 position = new( x * Globals.TILE_SIZE, -y * Globals.TILE_SIZE );
-					batch.Draw( m_normalUnder, position, new Color( 150, 150, 150 ) );
+					batch.Draw( m_normalUnder, Globals.TileToWorld( x, y ), tint );
 				}
 			}
 
 			Wall wall = GMTK2024Game.Instance.Wall;
 			const int EXTRA_PADDING = Globals.TILE_SIZE / 4;
 			Rectangle padRectangle = new( wall.X * Globals.TILE_SIZE - EXTRA_PADDING, 0, wall.Width * Globals.TILE_SIZE + EXTRA_PADDING * 2, PAD_HEIGHT * Globals.TILE_SIZE );
-			batch.Draw( m_padPatch, padRectangle, Color.White );		
+			batch.Draw( m_padPatch, padRectangle, isNight ? tint : Color.White );		
 
 			batch.End();
 		}
