@@ -98,7 +98,7 @@ namespace GMTK2024
 			};
 
 			IsMouseVisible = true;
-			Mouse.SetCursor( MouseCursor.Arrow );
+			//Mouse.SetCursor( MouseCursor.Arrow );
 
 			UI = new UIRoot( GraphicsDevice );
 
@@ -277,7 +277,7 @@ namespace GMTK2024
 			if( mouse.WasButtonPressed( MouseButton.Right ) || mouse.WasButtonPressed( MouseButton.Middle ) )
 			{
 				m_dragStart = mouse.Position;
-				Mouse.SetCursor( MouseCursor.SizeAll );
+				//Mouse.SetCursor( MouseCursor.SizeAll );
 			}
 
 			if( m_dragStart != null )
@@ -298,7 +298,7 @@ namespace GMTK2024
 		{
 			m_dragStart = null;
 			m_dragging = false;
-			Mouse.SetCursor( MouseCursor.Arrow );
+			//Mouse.SetCursor( MouseCursor.Arrow );
 		}
 
 		private float m_zoomInterp = 0.5f;
