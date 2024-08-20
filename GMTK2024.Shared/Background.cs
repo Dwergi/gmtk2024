@@ -20,6 +20,7 @@ public class Background : IDrawable
 	private readonly Texture2DRegion m_outerWall;
 	private readonly Texture2DRegion m_ceilingCorner;
 	private readonly Texture2DRegion m_window;
+	private readonly Texture2DRegion m_asphalt;
 
 	private readonly List<Texture2DRegion> m_cashierFrames;
 	private int m_currentCashierFrame;
@@ -41,6 +42,7 @@ public class Background : IDrawable
 		m_outerWall = m_atlas.GetRegion( "outer_wall" );
 		m_ceilingCorner = m_atlas.GetRegion( "ceiling_corner" );
 		m_window = m_atlas.GetRegion( "window" );
+		m_asphalt = m_atlas.GetRegion( "asphalt" );
 
 		m_cashierFrames = m_atlas.Where( r => r.Name.StartsWith(CASHIER_PREFIX  ) )
 			.OrderBy( r => int.Parse( r.Name[ CASHIER_PREFIX.Length.. ] ) )
@@ -81,6 +83,13 @@ public class Background : IDrawable
 		// corners
 		batch.Draw( m_ceilingCorner, Globals.TileToWorld( Globals.TILE_LEFT, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0 );
 		batch.Draw( m_ceilingCorner, Globals.TileToWorld( Globals.TILE_RIGHT - 1, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.FlipHorizontally, 0 );
+
+		// asphalt
+		for( int y = Globals.TILE_BOTTOM; y <= 0; ++y )
+		{
+			batch.Draw( m_asphalt, Globals.TileToWorld( Globals.TILE_LEFT, y ), isNight ? new( 50, 50, 50 ) : Color.White );
+			batch.Draw( m_asphalt, Globals.TileToWorld( Globals.TILE_RIGHT - 1, y ), isNight ? new( 50, 50, 50 ) : Color.White );
+		}
 
 		// background walls
 		for( int y = 0; y < Globals.TILE_TOP - 1; ++y )

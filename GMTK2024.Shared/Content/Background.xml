@@ -1,23 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TextureAtlas imagePath="Background.png">
-	<SubTexture name="cashier_0" x="0" y="0" width="64" height="64" />
-	<SubTexture name="cashier_1" x="66" y="0" width="64" height="64" />
-	<SubTexture name="cashier_2" x="132" y="0" width="64" height="64" />
-	<SubTexture name="cashier_3" x="198" y="0" width="64" height="64" />
-	<SubTexture name="cashier_4" x="264" y="0" width="64" height="64" />
-	<SubTexture name="cashier_5" x="330" y="0" width="64" height="64" />
-	<SubTexture name="ceiling" x="396" y="0" width="64" height="64" />
-	<SubTexture name="ceiling_corner" x="0" y="66" width="64" height="64" />
-	<SubTexture name="counter" x="66" y="66" width="128" height="128" />
-	<SubTexture name="customer_0" x="196" y="66" width="64" height="96" />
-	<SubTexture name="customer_walking_0" x="262" y="66" width="64" height="96" />
-	<SubTexture name="customer_walking_1" x="328" y="66" width="64" height="96" />
-	<SubTexture name="customer_walking_2" x="394" y="66" width="64" height="96" />
-	<SubTexture name="customer_walking_3" x="0" y="132" width="64" height="96" />
-	<SubTexture name="door" x="196" y="164" width="64" height="128" />
+	<SubTexture name="asphalt" x="0" y="0" width="64" height="64" />
+	<SubTexture name="cashier_0" x="66" y="0" width="64" height="64" />
+	<SubTexture name="cashier_1" x="132" y="0" width="64" height="64" />
+	<SubTexture name="cashier_2" x="198" y="0" width="64" height="64" />
+	<SubTexture name="cashier_3" x="264" y="0" width="64" height="64" />
+	<SubTexture name="cashier_4" x="330" y="0" width="64" height="64" />
+	<SubTexture name="cashier_5" x="396" y="0" width="64" height="64" />
+	<SubTexture name="ceiling" x="0" y="66" width="64" height="64" />
+	<SubTexture name="ceiling_corner" x="66" y="66" width="64" height="64" />
+	<SubTexture name="counter" x="132" y="66" width="128" height="128" />
+	<SubTexture name="customer_0" x="262" y="66" width="64" height="96" />
+	<SubTexture name="customer_walking_0" x="328" y="66" width="64" height="96" />
+	<SubTexture name="customer_walking_1" x="394" y="66" width="64" height="96" />
+	<SubTexture name="customer_walking_2" x="0" y="132" width="64" height="96" />
+	<SubTexture name="customer_walking_3" x="66" y="132" width="64" height="96" />
+	<SubTexture name="door" x="262" y="164" width="64" height="128" />
 	<SubTexture name="exit" x="462" y="0" width="32" height="32" />
-	<SubTexture name="outer_wall" x="262" y="164" width="64" height="64" />
-	<SubTexture name="plant" x="328" y="164" width="64" height="64" />
-	<SubTexture name="wall" x="394" y="164" width="64" height="64" />
-	<SubTexture name="window" x="66" y="196" width="64" height="64" />
+	<SubTexture name="outer_wall" x="328" y="164" width="64" height="64" />
+	<SubTexture name="plant" x="394" y="164" width="64" height="64" />
+	<SubTexture name="wall" x="132" y="196" width="64" height="64" />
+	<SubTexture name="window" x="0" y="230" width="64" height="64" />
 </TextureAtlas>
