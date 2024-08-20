@@ -19,6 +19,7 @@ public class Background : IDrawable
 	private readonly Texture2DRegion m_ceiling;
 	private readonly Texture2DRegion m_outerWall;
 	private readonly Texture2DRegion m_ceilingCorner;
+	private readonly Texture2DRegion m_window;
 
 	private readonly List<Texture2DRegion> m_cashierFrames;
 	private int m_currentCashierFrame;
@@ -39,6 +40,7 @@ public class Background : IDrawable
 		m_ceiling = m_atlas.GetRegion( "ceiling" );
 		m_outerWall = m_atlas.GetRegion( "outer_wall" );
 		m_ceilingCorner = m_atlas.GetRegion( "ceiling_corner" );
+		m_window = m_atlas.GetRegion( "window" );
 
 		m_cashierFrames = m_atlas.Where( r => r.Name.StartsWith(CASHIER_PREFIX  ) )
 			.OrderBy( r => int.Parse( r.Name[ CASHIER_PREFIX.Length.. ] ) )
@@ -80,7 +82,7 @@ public class Background : IDrawable
 		batch.Draw( m_ceilingCorner, Globals.TileToWorld( Globals.TILE_LEFT, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0 );
 		batch.Draw( m_ceilingCorner, Globals.TileToWorld( Globals.TILE_RIGHT - 1, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.FlipHorizontally, 0 );
 
-
+		// background walls
 		for( int y = 0; y < Globals.TILE_TOP - 1; ++y )
 		{
 			for( int x = Globals.TILE_LEFT + 1; x < Globals.TILE_RIGHT - 1; ++x )
@@ -90,7 +92,13 @@ public class Background : IDrawable
 					continue;
 				}
 
-				batch.Draw( m_wall, Globals.TileToWorld( x, y ), isNight ? new( 50, 50, 50 ) : Color.White );
+				Texture2DRegion sprite = m_wall;
+				if( y == 10 && (x == -12 || x == -5 || x == 2 || x == 9) )
+				{
+					sprite = m_window;
+				}
+
+				batch.Draw( sprite, Globals.TileToWorld( x, y ), isNight ? new( 50, 50, 50 ) : Color.White );
 			}
 		}
 

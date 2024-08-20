@@ -19,4 +19,5 @@
 	<SubTexture name="outer_wall" x="262" y="164" width="64" height="64" />
 	<SubTexture name="plant" x="328" y="164" width="64" height="64" />
 	<SubTexture name="wall" x="394" y="164" width="64" height="64" />
+	<SubTexture name="window" x="66" y="196" width="64" height="64" />
 </TextureAtlas>
