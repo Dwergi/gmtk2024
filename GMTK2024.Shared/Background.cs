@@ -51,9 +51,7 @@ public class Background : IDrawable
 	{
 		batch.Begin( samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix() );
 
-
 		bool isNight = GMTK2024Game.Instance.IsNightTime;
-
 
 		for( int y = 0; y < Globals.TILE_TOP - 1; ++y )
 		{
