@@ -18,6 +18,7 @@ namespace GMTK2024
 	public class HoldSlot
 	{
 		public Vector2 Position { get; }
+		public float Rotation;
 		public HoldType Type;
 		public Color Color = Color.White;
 
@@ -179,7 +180,8 @@ namespace GMTK2024
 				Vector2 position = WallToWorld( slot.Position );
 				if( slot.Type != null )
 				{
-					batch.Draw( slot.Type.Sprite, position, isNight ? slot.Color * 0.5f : slot.Color );
+					Vector2 halfSize = new Vector2( slot.Type.Sprite.Width / 2, slot.Type.Sprite.Height / 2 );
+					batch.Draw( slot.Type.Sprite, position - halfSize, isNight ? slot.Color * 0.5f : slot.Color );
 				}
 				else
 				{

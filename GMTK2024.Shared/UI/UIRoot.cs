@@ -107,7 +107,7 @@ public class UIRoot
 		}
 
 		/// DEBUG
-		const bool SHOW_MOUSE_POS = true;
+		const bool SHOW_MOUSE_POS = false;
 		if( SHOW_MOUSE_POS )
 		{
 			Vector2 worldPos = camera.ScreenToWorld( m_mousePos );

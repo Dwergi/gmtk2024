@@ -41,7 +41,7 @@
     <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MonoGame.Extended\source\MonoGame.Extended\KNI.Extended.csproj" />
+    <ProjectReference Include="..\MonoGame.Extended\source\MonoGame.Extended\KNI.Extended.csproj" />
   </ItemGroup>
   <Import Project="..\GMTK2024.Shared\GMTK2024.Shared.projitems" Label="Shared" />
 

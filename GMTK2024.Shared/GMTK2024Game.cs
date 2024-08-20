@@ -47,9 +47,13 @@ namespace GMTK2024
 
 		public UIRoot UI { get; private set; }
 
+		public OrthographicCamera Camera { get; private set; }
+
 		public Wall Wall { get; private set; }
 
-		public TimeOnly CurrentTime { get; private set; }
+		public TimeOnly CurrentTime { get; private set; } = new TimeOnly( 7, 0 );
+
+		public bool IsPaused { get; set; }
 
 		public bool IsNightTime => CurrentTime > new TimeOnly( 21, 0 ) || CurrentTime < new TimeOnly( 7, 0 );
 
@@ -57,7 +61,6 @@ namespace GMTK2024
 		private SpriteBatch m_spriteBatch;
 		private Ground m_ground;
 		private EditMode m_editMode;
-		private OrthographicCamera m_camera;
 		private Background m_background;
 
 		/// pixels per second
@@ -89,7 +92,7 @@ namespace GMTK2024
 			base.Initialize();
 
 			var viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 1920, 1080);
-			m_camera = new( viewportAdapter )
+			Camera = new( viewportAdapter )
 			{
 				Position = new Vector2( -viewportAdapter.ViewportWidth / 2, -viewportAdapter.ViewportHeight / 2 )
 			};
@@ -174,21 +177,25 @@ namespace GMTK2024
 			float delta_t = gameTime.GetElapsedSeconds();
 
 			float timeScale = IsNightTime ? Globals.ACCELERATED_TIME_SCALE : Globals.TIME_SCALE;
+			if( IsPaused )
+			{
+				timeScale = 0;
+			}
 			CurrentTime = CurrentTime.Add( TimeSpan.FromSeconds( delta_t * timeScale ) );
 
 			Color dayNightColor = GetDayNightColor();
 
 			GraphicsDevice.Clear( dayNightColor );
 
-			m_background.Draw( m_spriteBatch, m_camera );
+			m_background.Draw( m_spriteBatch, Camera );
 
-			m_ground.Draw( m_spriteBatch, m_camera );
+			m_ground.Draw( m_spriteBatch, Camera );
 
-			Wall.Draw( m_spriteBatch, m_camera );
+			Wall.Draw( m_spriteBatch, Camera );
 
-			UI.Draw( m_spriteBatch, m_camera );
+			UI.Draw( m_spriteBatch, Camera );
 
-			m_editMode.Draw( m_spriteBatch, m_camera );
+			m_editMode.Draw( m_spriteBatch, Camera );
 
 			m_spriteBatch.Begin();
 
@@ -214,40 +221,40 @@ namespace GMTK2024
 
 			if( keyboard.IsKeyDown( Keys.A ) || keyboard.IsKeyDown( Keys.Left ) )
 			{
-				m_camera.Move( new Vector2( -scrollSpeed * delta_t, 0 ) );
+				Camera.Move( new Vector2( -scrollSpeed * delta_t, 0 ) );
 			}
 			if( keyboard.IsKeyDown( Keys.D ) || keyboard.IsKeyDown( Keys.Right ) )
 			{
-				m_camera.Move( new Vector2( scrollSpeed * delta_t, 0 ) );
+				Camera.Move( new Vector2( scrollSpeed * delta_t, 0 ) );
 			}
 			if( keyboard.IsKeyDown( Keys.W ) )
 			{
-				m_camera.Move( new Vector2( 0, -scrollSpeed * delta_t ) );
+				Camera.Move( new Vector2( 0, -scrollSpeed * delta_t ) );
 			}
 			if( keyboard.IsKeyDown( Keys.S ) )
 			{
-				m_camera.Move( new Vector2( 0, scrollSpeed * delta_t ) );
+				Camera.Move( new Vector2( 0, scrollSpeed * delta_t ) );
 			}
 
-			Vector2 position = m_camera.Position;
-			if( m_camera.BoundingRectangle.Left < Globals.PIXEL_BOUNDS.Left )
+			Vector2 position = Camera.Position;
+			if( Camera.BoundingRectangle.Left < Globals.PIXEL_BOUNDS.Left )
 			{
-				position.X -= m_camera.BoundingRectangle.Left - Globals.PIXEL_BOUNDS.Left;
+				position.X -= Camera.BoundingRectangle.Left - Globals.PIXEL_BOUNDS.Left;
 			}
-			else if( m_camera.BoundingRectangle.Right > Globals.PIXEL_BOUNDS.Right )
+			else if( Camera.BoundingRectangle.Right > Globals.PIXEL_BOUNDS.Right )
 			{
-				position.X -= m_camera.BoundingRectangle.Right - Globals.PIXEL_BOUNDS.Right;
+				position.X -= Camera.BoundingRectangle.Right - Globals.PIXEL_BOUNDS.Right;
 			}
 
-			if( m_camera.BoundingRectangle.Top < Globals.PIXEL_BOUNDS.Top )
+			if( Camera.BoundingRectangle.Top < Globals.PIXEL_BOUNDS.Top )
 			{
-				position.Y -= m_camera.BoundingRectangle.Top - Globals.PIXEL_BOUNDS.Top;
+				position.Y -= Camera.BoundingRectangle.Top - Globals.PIXEL_BOUNDS.Top;
 			}
-			else if( m_camera.BoundingRectangle.Bottom > Globals.PIXEL_BOUNDS.Bottom )
+			else if( Camera.BoundingRectangle.Bottom > Globals.PIXEL_BOUNDS.Bottom )
 			{
-				position.Y -= m_camera.BoundingRectangle.Bottom - Globals.PIXEL_BOUNDS.Bottom;
+				position.Y -= Camera.BoundingRectangle.Bottom - Globals.PIXEL_BOUNDS.Bottom;
 			}
-			m_camera.Position = position;
+			Camera.Position = position;
 		}
 
 		private Point? m_dragStart;
@@ -283,7 +290,7 @@ namespace GMTK2024
 
 			if( m_dragging )
 			{
-				m_camera.Move( mouse.DeltaPosition.ToVector2() / m_camera.Zoom );
+				Camera.Move( mouse.DeltaPosition.ToVector2() / Camera.Zoom );
 			}
 		}
 
@@ -318,7 +325,7 @@ namespace GMTK2024
 
 			m_zoomInterp = Math.Clamp( m_zoomInterp, 0.0f, 1.0f );
 
-			m_camera.Zoom = Utils.Eerp( m_camera.MinimumZoom, m_camera.MaximumZoom, m_zoomInterp );
+			Camera.Zoom = Utils.Eerp( Camera.MinimumZoom, Camera.MaximumZoom, m_zoomInterp );
 		}
 
 		private static readonly float[] ZoomLevels = [ 1, 2, 3, 4 ];
@@ -346,7 +353,7 @@ namespace GMTK2024
 
 			m_zoomIndex = Math.Clamp( m_zoomIndex, 0, ZoomLevels.Length - 1 );
 
-			m_camera.Zoom = ZoomLevels[ m_zoomIndex ];
+			Camera.Zoom = ZoomLevels[ m_zoomIndex ];
 		}
 	}
 }

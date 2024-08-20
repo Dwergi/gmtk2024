@@ -7,8 +7,13 @@
 	<SubTexture name="cashier_4" x="264" y="0" width="64" height="64" />
 	<SubTexture name="cashier_5" x="330" y="0" width="64" height="64" />
 	<SubTexture name="counter" x="0" y="66" width="128" height="128" />
-	<SubTexture name="door" x="396" y="0" width="64" height="128" />
+	<SubTexture name="customer_0" x="396" y="0" width="64" height="96" />
+	<SubTexture name="customer_walking_0" x="130" y="66" width="64" height="96" />
+	<SubTexture name="customer_walking_1" x="196" y="66" width="64" height="96" />
+	<SubTexture name="customer_walking_2" x="262" y="66" width="64" height="96" />
+	<SubTexture name="customer_walking_3" x="328" y="66" width="64" height="96" />
+	<SubTexture name="door" x="394" y="98" width="64" height="128" />
 	<SubTexture name="exit" x="462" y="0" width="32" height="32" />
-	<SubTexture name="plant" x="130" y="66" width="64" height="64" />
-	<SubTexture name="wall" x="196" y="66" width="64" height="64" />
+	<SubTexture name="plant" x="130" y="164" width="64" height="64" />
+	<SubTexture name="wall" x="196" y="164" width="64" height="64" />
 </TextureAtlas>
