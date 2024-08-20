@@ -16,6 +16,9 @@ public class Background : IDrawable
 	private readonly Texture2DRegion m_exitSign;
 	private readonly Texture2DRegion m_plant;
 	private readonly Texture2DRegion m_counter;
+	private readonly Texture2DRegion m_ceiling;
+	private readonly Texture2DRegion m_outerWall;
+	private readonly Texture2DRegion m_ceilingCorner;
 
 	private readonly List<Texture2DRegion> m_cashierFrames;
 	private int m_currentCashierFrame;
@@ -33,7 +36,10 @@ public class Background : IDrawable
 		m_exitSign = m_atlas.GetRegion( "exit" );
 		m_plant = m_atlas.GetRegion( "plant" );
 		m_counter = m_atlas.GetRegion( "counter" );
-		
+		m_ceiling = m_atlas.GetRegion( "ceiling" );
+		m_outerWall = m_atlas.GetRegion( "outer_wall" );
+		m_ceilingCorner = m_atlas.GetRegion( "ceiling_corner" );
+
 		m_cashierFrames = m_atlas.Where( r => r.Name.StartsWith(CASHIER_PREFIX  ) )
 			.OrderBy( r => int.Parse( r.Name[ CASHIER_PREFIX.Length.. ] ) )
 			.ToList();
@@ -52,6 +58,28 @@ public class Background : IDrawable
 		batch.Begin( samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix() );
 
 		bool isNight = GMTK2024Game.Instance.IsNightTime;
+
+		// outer walls
+		for( int y = Globals.TILE_BOTTOM; y < Globals.TILE_TOP - 1; ++y )
+		{
+			batch.Draw( m_outerWall, Globals.TileToWorld( Globals.TILE_LEFT, y ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.FlipHorizontally, 0 );
+		}
+
+		for( int y = Globals.TILE_BOTTOM; y < Globals.TILE_TOP - 1; ++y )
+		{
+			batch.Draw( m_outerWall, Globals.TileToWorld( Globals.TILE_RIGHT - 1, y ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0 );
+		}
+
+		// ceiling
+		for( int x = Globals.TILE_LEFT + 1; x < Globals.TILE_RIGHT - 1; ++x )
+		{
+			batch.Draw( m_ceiling, Globals.TileToWorld( x, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White );
+		}
+
+		// corners
+		batch.Draw( m_ceilingCorner, Globals.TileToWorld( Globals.TILE_LEFT, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0 );
+		batch.Draw( m_ceilingCorner, Globals.TileToWorld( Globals.TILE_RIGHT - 1, Globals.TILE_TOP - 1 ), isNight ? new( 50, 50, 50 ) : Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.FlipHorizontally, 0 );
+
 
 		for( int y = 0; y < Globals.TILE_TOP - 1; ++y )
 		{
